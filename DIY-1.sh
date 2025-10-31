@@ -2,10 +2,10 @@
 # =======================================================================================================================
 
 # 1-添加 ShadowSocksR Plus+ 插件
-echo 'src-git helloworld https://github.com/fw876/helloworld' >>feeds.conf.default
+#echo 'src-git helloworld https://github.com/fw876/helloworld' >>feeds.conf.default
 
 # 2-添加 PowerOff 关机插件
-git clone https://github.com/WukongMaster/luci-app-poweroff.git package/luci-app-poweroff
+#git clone https://github.com/WukongMaster/luci-app-poweroff.git package/luci-app-poweroff
 
 # 3-添加 opentomcat 主题
 git clone https://github.com/WukongMaster/luci-theme-opentomcat.git package/luci-theme-opentomcat
