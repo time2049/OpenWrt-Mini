@@ -16,7 +16,7 @@
 | ---- | ---- | ---- |
 |10.1.1.1| root | 无密码 |
 
-## 固件下载:   [Releases](https://github.com/WukongMaster/OpenWrt-Mini/releases) 
+## 固件下载:   [Releases](https://github.com/time2049/OpenWrt-Mini/releases) 
 
 ## 固件截图
 
