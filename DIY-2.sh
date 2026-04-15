@@ -35,3 +35,11 @@ echo 'CONFIG_PACKAGE_luci-app-poweroff=y' >> .config
 
 # 10. 额外补丁：确保 OpenClash 被彻底关闭（防止它占用资源导致体积过大）
 sed -i '/CONFIG_PACKAGE_luci-app-openclash/d' .config
+# 1. 禁用 OpenClash 的 Feed 订阅源 (防止拉取插件源码)
+sed -i 's/CONFIG_FEED_openclash=y/CONFIG_FEED_openclash=n/g' .config
+
+# 2. 确保 OpenClash 插件包本身不被选中 (双重保险)
+sed -i 's/CONFIG_PACKAGE_luci-app-openclash=y/CONFIG_PACKAGE_luci-app-openclash=n/g' .config
+# 彻底取消默认的 DDNS 插件
+sed -i 's/CONFIG_DEFAULT_luci-app-ddns=y/CONFIG_DEFAULT_luci-app-ddns=n/g' .config
+sed -i 's/CONFIG_PACKAGE_luci-app-ddns=y/CONFIG_PACKAGE_luci-app-ddns=n/g' .config
