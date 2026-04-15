@@ -23,3 +23,15 @@ sed -i "/DTS_DIR:=\$(LINUX_DIR)/a\BUILD_DATE_PREFIX := \$(shell date +'%F')" ./i
 
 # 7-只显示CPU型号
 [ -f package/lean/autocore/files/x86/autocore ] && sed -i 's/${g}.*/${a}${b}${c}${d}${e}${f}${hydrid}/g' package/lean/autocore/files/x86/autocore
+# 8. 修复 Argon 主题崩溃的核心：强制添加兼容包
+# 这一行是解决你之前那个“__entries 为 nil”报错的唯一解药
+echo 'CONFIG_PACKAGE_luci-compat=y' >> .config
+
+# 9. 强制选中你刚添加的插件，确保它们出现在固件里
+echo 'CONFIG_PACKAGE_luci-theme-argon=y' >> .config
+echo 'CONFIG_PACKAGE_luci-app-argon-config=y' >> .config
+echo 'CONFIG_PACKAGE_luci-app-passwall=y' >> .config
+echo 'CONFIG_PACKAGE_luci-app-poweroff=y' >> .config
+
+# 10. 额外补丁：确保 OpenClash 被彻底关闭（防止它占用资源导致体积过大）
+sed -i '/CONFIG_PACKAGE_luci-app-openclash/d' .config
