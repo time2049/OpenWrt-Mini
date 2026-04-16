@@ -1,15 +1,15 @@
-name:  OpenWrt-合集版
+name: OpenWrt-合集版
 
 on: 
   workflow_dispatch:
   schedule:
-    - cron: 20 00 * * *
+    - cron: '20 18 * * *'  # 北京时间 凌晨 02:20 自动运行
 
 env:
   REPO_URL: https://github.com/coolsnowwolf/lede
   REPO_BRANCH: master
   FEEDS_CONF: feeds.conf.default
-  CONFIG_FILE: OK2.config
+  CONFIG_FILE: OK1.config  # 已经为你修改为 OK1
   DIY_P1_SH: DIY-1.sh
   DIY_P2_SH: DIY-2.sh
   UPLOAD_FIRMWARE: true
@@ -150,10 +150,10 @@ jobs:
       run: |
         echo "release_tag=${{ env.TAG_TIME }}" >> $GITHUB_OUTPUT
         touch release.txt
-        echo "OpenWrt-Mini_ X86_64（支持ipv6）" >> release.txt
-        echo "管理地址：192.168.2.1" >> release.txt
+        echo "OpenWrt-Mini X86_64（J1900 专属毕业版）" >> release.txt
+        echo "管理地址：10.1.1.1" >> release.txt
         echo "默认密码：无密码" >> release.txt
-        echo "插件清单：ShadowSocksR Plus+，PassWall，OpenClash" >> release.txt
+        echo "核心插件：PassWall, Argon 主题, 内核 6.12, 1GB 空间" >> release.txt
         echo "status=success" >> $GITHUB_OUTPUT
 
     - name: 发布新版固件
