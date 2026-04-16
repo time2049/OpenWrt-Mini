@@ -54,3 +54,9 @@ rm -rf feeds/luci/themes/luci-theme-opentomcat
 # 13. 再次强制锁定 Argon 为唯一默认主题
 # 防止某些插件脚本在最后时刻把主题改回 bootstrap
 sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/modules/luci-base/root/etc/config/luci
+14. 强行拉取最新插件定义，确保编译时不使用旧的缓存
+./scripts/feeds update -a && ./scripts/feeds install -a
+
+# 15. 锁定最新版 PassWall 依赖的内核模块 (防止出现依赖缺失导致不显示菜单)
+echo 'CONFIG_PACKAGE_kmod-nft-tproxy=y' >> .config
+echo 'CONFIG_PACKAGE_kmod-ipt-tproxy=y' >> .config
