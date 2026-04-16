@@ -1,5 +1,5 @@
 #!/bin/bash
-# DIY-2 此脚本功能：修改固件参数
+# DIY-2 此脚本功能：修改固件参数（J1900 毕业精简版）
 # ============================================================================================
 
 # 1-修改管理地址为 10.1.1.1
@@ -11,7 +11,7 @@ sed -i 's/KERNEL_PATCHVER:=6.6/KERNEL_PATCHVER:=6.12/g' ./target/linux/x86/Makef
 # 3-删除默认密码
 [ -f package/lean/default-settings/files/zzz-default-settings ] && sed -i '/CYXluq4wUazHjmCDBCqXF/d' package/lean/default-settings/files/zzz-default-settings
 
-# 4-修复核心错误：将默认主题由 bootstrap/opentomcat 修改为 argon
+# 4-修复默认主题为 argon
 sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
 
 # 5-修改时间格式
@@ -23,40 +23,57 @@ sed -i "/DTS_DIR:=\$(LINUX_DIR)/a\BUILD_DATE_PREFIX := \$(shell date +'%F')" ./i
 
 # 7-只显示CPU型号
 [ -f package/lean/autocore/files/x86/autocore ] && sed -i 's/${g}.*/${a}${b}${c}${d}${e}${f}${hydrid}/g' package/lean/autocore/files/x86/autocore
-# 8. 修复 Argon 主题崩溃的核心：强制添加兼容包
-# 这一行是解决你之前那个“__entries 为 nil”报错的唯一解药
+
+# 8. 修复 Argon 主题兼容性
 echo 'CONFIG_PACKAGE_luci-compat=y' >> .config
 
-# 9. 强制选中你刚添加的插件，确保它们出现在固件里
+# 9. 强制选中核心插件
 echo 'CONFIG_PACKAGE_luci-theme-argon=y' >> .config
 echo 'CONFIG_PACKAGE_luci-app-argon-config=y' >> .config
 echo 'CONFIG_PACKAGE_luci-app-passwall=y' >> .config
 echo 'CONFIG_PACKAGE_luci-app-poweroff=y' >> .config
 
-# 10. 额外补丁：确保 OpenClash 被彻底关闭（防止它占用资源导致体积过大）
+# 10. 彻底关闭无用大型插件 (OpenClash/DDNS)
 sed -i '/CONFIG_PACKAGE_luci-app-openclash/d' .config
-# 1. 禁用 OpenClash 的 Feed 订阅源 (防止拉取插件源码)
 sed -i 's/CONFIG_FEED_openclash=y/CONFIG_FEED_openclash=n/g' .config
-
-# 2. 确保 OpenClash 插件包本身不被选中 (双重保险)
-sed -i 's/CONFIG_PACKAGE_luci-app-openclash=y/CONFIG_PACKAGE_luci-app-openclash=n/g' .config
-# 彻底取消默认的 DDNS 插件
 sed -i 's/CONFIG_DEFAULT_luci-app-ddns=y/CONFIG_DEFAULT_luci-app-ddns=n/g' .config
-sed -i 's/CONFIG_PACKAGE_luci-app-ddns=y/CONFIG_PACKAGE_luci-app-ddns=n/g' .config
-# 11. 彻底从源头扩容磁盘空间 (1024MB = 1GB)
-# 这一步能确保你以后刷完机进去就是 1GB，不用再敲命令扩容
-sed -i 's/CONFIG_TARGET_ROOTFS_PARTSIZE=160/CONFIG_TARGET_ROOTFS_PARTSIZE=1024/g' .config
 
-# 12. 彻底粉碎 opentomcat 主题 (物理删除源码)
-# 只要源码没了，不管配置文件里怎么勾选，系统都编不出来它
+# 11. 磁盘空间扩容 (1GB)
+sed -i 's/CONFIG_TARGET_ROOTFS_PARTSIZE=.*/CONFIG_TARGET_ROOTFS_PARTSIZE=1024/g' .config
+
+# 12. 物理删除无用主题源码 (彻底消灭 opentomcat/design)
 rm -rf feeds/luci/themes/luci-theme-opentomcat
+rm -rf feeds/luci/themes/luci-theme-design
 
-# 13. 再次强制锁定 Argon 为唯一默认主题
-# 防止某些插件脚本在最后时刻把主题改回 bootstrap
+# 13. 锁定 Argon 默认配置
 sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/modules/luci-base/root/etc/config/luci
-14. 强行拉取最新插件定义，确保编译时不使用旧的缓存
+
+# 14. 强行刷新 Feed 缓存
 ./scripts/feeds update -a && ./scripts/feeds install -a
 
-# 15. 锁定最新版 PassWall 依赖的内核模块 (防止出现依赖缺失导致不显示菜单)
+# 15. PassWall 依赖补丁
 echo 'CONFIG_PACKAGE_kmod-nft-tproxy=y' >> .config
 echo 'CONFIG_PACKAGE_kmod-ipt-tproxy=y' >> .config
+
+# --------------------------------------------------------------------------------------------
+# 🚀 以下为【精简瘦身】补丁 🚀
+
+# 16. 精简语言包 (只保留简体中文和英文)
+# 这一步能大幅减少固件体积和编译时间
+find ./feeds/luci/modules/luci-base/po/ -mindepth 1 -maxdepth 1 -not -name "zh_Hans" -not -name "en" -exec rm -rf {} +
+
+# 17. 物理删除冗余插件 (有些插件即便不选也会被拉取)
+rm -rf package/lean/luci-app-usb-printer     # 打印服务
+rm -rf package/lean/luci-app-vsftpd          # FTP服务器
+rm -rf package/lean/luci-app-syncdial        # 多线多拨
+rm -rf package/lean/luci-app-vlmcsd          # KMS激活 (如果你不用路由激活Windows)
+
+# 18. 强制不选中非必要项 (清理后台菜单)
+echo 'CONFIG_PACKAGE_luci-app-filetransfer=n' >> .config   # 文件传输
+echo 'CONFIG_PACKAGE_luci-app-unblockmusic=n' >> .config    # 解锁网易云 (如果不需要)
+echo 'CONFIG_PACKAGE_luci-app-access-control=n' >> .config # 访问控制
+echo 'CONFIG_PACKAGE_luci-app-upnp=n' >> .config           # UPNP (根据需求决定，建议保留或删除)
+
+# 19. 移除默认编译的一些无关驱动
+sed -i 's/CONFIG_PACKAGE_kmod-usb-net-rtl8152=y/CONFIG_PACKAGE_kmod-usb-net-rtl8152=n/g' .config
+# ============================================================================================
