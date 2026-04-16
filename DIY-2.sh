@@ -43,3 +43,14 @@ sed -i 's/CONFIG_PACKAGE_luci-app-openclash=y/CONFIG_PACKAGE_luci-app-openclash=
 # 彻底取消默认的 DDNS 插件
 sed -i 's/CONFIG_DEFAULT_luci-app-ddns=y/CONFIG_DEFAULT_luci-app-ddns=n/g' .config
 sed -i 's/CONFIG_PACKAGE_luci-app-ddns=y/CONFIG_PACKAGE_luci-app-ddns=n/g' .config
+# 11. 彻底从源头扩容磁盘空间 (1024MB = 1GB)
+# 这一步能确保你以后刷完机进去就是 1GB，不用再敲命令扩容
+sed -i 's/CONFIG_TARGET_ROOTFS_PARTSIZE=160/CONFIG_TARGET_ROOTFS_PARTSIZE=1024/g' .config
+
+# 12. 彻底粉碎 opentomcat 主题 (物理删除源码)
+# 只要源码没了，不管配置文件里怎么勾选，系统都编不出来它
+rm -rf feeds/luci/themes/luci-theme-opentomcat
+
+# 13. 再次强制锁定 Argon 为唯一默认主题
+# 防止某些插件脚本在最后时刻把主题改回 bootstrap
+sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/modules/luci-base/root/etc/config/luci
