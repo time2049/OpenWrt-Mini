@@ -17,7 +17,7 @@ git clone https://github.com/jerrykuku/luci-app-argon-config.git package/luci-ap
 
 # 4. 添加 PassWall 插件
 # 使用 sed 确保直接写入 feeds.conf.default 末尾，比 echo 更稳健
-sed -i '$a src-git passwall_luci https://github.com/Openwrt-Passwall/openwrt-passwall.git;main' feeds.conf.default
-sed -i '$a src-git passwall_packages https://github.com/Openwrt-Passwall/openwrt-passwall-packages.git;main' feeds.conf.default
+src-git passwall_packages https://github.com/Openwrt-Passwall/openwrt-passwall-packages.git;main
+src-git passwall_luci https://github.com/Openwrt-Passwall/openwrt-passwall.git;main
 
 # 注意：SSR+ 和 OpenClash 已移除
