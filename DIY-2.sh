@@ -10,7 +10,26 @@ sed -i 's/KERNEL_PATCHVER:=6.6/KERNEL_PATCHVER:=6.12/g' ./target/linux/x86/Makef
 
 # 3-删除默认密码
 [ -f package/lean/default-settings/files/zzz-default-settings ] && sed -i '/CYXluq4wUazHjmCDBCqXF/d' package/lean/default-settings/files/zzz-default-settings
+# --- 彻底解决 PassWall 版本过旧的强力手段 ---
 
+# 1. 物理粉碎 Lean 源码自带的旧版插件包，强制腾出位子
+rm -rf package/feeds/luci/luci-app-passwall
+rm -rf package/feeds/packages/passwall
+rm -rf feeds/luci/applications/luci-app-passwall
+rm -rf feeds/packages/net/passwall
+
+# 2. 强制删除可能存在的缓存索引，逼系统重新扫描 feeds.conf.default
+rm -rf ./tmp
+
+# 3. 再次确保 feeds.conf.default 的内容是官方最新地址
+# （这一步是双重保险，防止文件被自动还原）
+sed -i '/passwall/d' feeds.conf.default
+echo 'src-git passwall_packages https://github.com/Openwrt-Passwall/openwrt-passwall-packages.git;main' >> feeds.conf.default
+echo 'src-git passwall_luci https://github.com/Openwrt-Passwall/openwrt-passwall.git;main' >> feeds.conf.default
+
+# 4. 强力刷新：update 拉取，install -f 强制覆盖安装
+./scripts/feeds update -a
+./scripts/feeds install -f -a
 # 4-修复默认主题为 argon
 sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
 
