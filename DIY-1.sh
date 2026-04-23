@@ -19,14 +19,4 @@ git clone https://github.com/jerrykuku/luci-app-argon-config.git package/luci-ap
 
 # =======================================================================================================================
 
-# 2. 强制拉取最新的 Xray 和 Sing-box 源码定义
-# 这样做可以覆盖掉 OpenWrt 源码中可能自带的旧版本
-mkdir -p package/custom
-cd package/custom
-git clone --depth 1 https://github.com/xiaorouji/openwrt-passwall-packages.git temp_pw
-rm -rf ../../feeds/passwall_packages/xray-core
-rm -rf ../../feeds/passwall_packages/sing-box
-cp -r temp_pw/xray-core ../../package/
-cp -r temp_pw/sing-box ../../package/
-rm -rf temp_pw
-cd ../../
+
